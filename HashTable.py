@@ -5,7 +5,7 @@ class HashTable:
 
     # hash function
     def hash(self, key):
-        return key % self.size
+        return  int (key) % self.size
 
     # function to insert
     def insert(self, key, value):
@@ -14,14 +14,16 @@ class HashTable:
         bucket = self.table[bucket_index]
         key_exist = False
 
-        if bucket is not None:
-            for item in self.table[bucket_index]:
-                if item[0] == key:
-                    item[1] = value
+        str_key = str(key)
+
+        for item in self.table[bucket_index]:
+            if item[0] == str_key:
+                item[1] = value
                 key_exist = True
-            return
+                break
+
         if not key_exist:
-            self.table[bucket_index].append([key, value])
+            self.table[bucket_index].append([str_key, value])
             return
 
 
@@ -30,9 +32,10 @@ class HashTable:
         bucket_index = self.hash(key)
 
         key_exist = False
+        str_key = str(key)
 
         for item in self.table[bucket_index]:
-            if item[0] == key:
+            if item[0] == str_key:
                 return item[1]
 
         print("Key not found")
@@ -44,8 +47,10 @@ class HashTable:
     def remove(self, key):
         bucket_index = self.hash(key)
 
+        str_key = str(key)
+
         for item in self.table[bucket_index]:
-            if item[0] == key:
+            if item[0] == str_key:
                 self.table[bucket_index].remove(item)
                 print("Package removed")
                 return
