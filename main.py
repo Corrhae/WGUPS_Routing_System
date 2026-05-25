@@ -1,13 +1,29 @@
 import csv
 
+from Driver import Driver
 from Package import Package
 from Package import DeliveryStatus
 from Trucks import Truck
 from HashTable import HashTable
+from datetime import time, timedelta
 
-from datetime import datetime, timedelta
 
+#initialize the Hash Table
 package_hash_table = HashTable()
+
+# Initializes the Truck objects and Drivers for their route
+driver_1 = Driver(1)
+driver_2 = Driver(2)
+
+truck_1 = Truck(1, driver_1, [], )
+truck_2 = Truck()
+truck_3 = Truck()
+
+truck_fleet = [truck_1,truck_2, truck_3]
+
+currentTime = time(8,0,0)
+print(currentTime.hour, currentTime.minute, currentTime.second)
+
 
 # import package data and initialize hash table
 def import_packages(hash_table):
@@ -85,6 +101,16 @@ def initialize_distances():
 
 
         return address_distances
+
+
+def load_packages(hash_table, truck_fleet):
+
+
+
+##### Delivery (Nearest Neighbor) Algorithm #######
+
+
+
 
 
 
