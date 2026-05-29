@@ -151,23 +151,23 @@ def load_packages(hash_table, truck1, truck2, truck3):
             continue
 
         if "10:30" in package.deadline:
-            if truck_1.packages.length < truck_1.capacity:
+            if len(truck1.packages) < truck_1.capacity:
                 add_package_to_truck(truck1, package, 2)
 
-            elif truck_2.packages.length < truck_2.capacity:
+            elif len(truck_2.packages) < truck_2.capacity:
                 add_package_to_truck(truck2, package, 2)
 
-            elif truck_3.packages.length < truck_3.capacity:
+            elif len(truck_3.packages) < truck_3.capacity:
                 add_package_to_truck(truck3, package, 1)
         else:
 
-            if truck_1.packages.length < truck_1.capacity:
+            if len(truck_1.packages) < truck_1.capacity:
                 add_package_to_truck(truck1, package, 2)
 
-            elif truck_2.packages.length < truck_2.capacity:
+            elif len(truck_2.packages) < truck_2.capacity:
                 add_package_to_truck(truck2, package, 2)
 
-            elif truck_3.packages.length < truck_3.capacity:
+            elif len(truck_3.packages) < truck_3.capacity:
                  add_package_to_truck(truck3, package, 1)
 
 
@@ -204,6 +204,9 @@ def route_and_deliver(hash_table, truck):
 
             #Remove/Deliver the package
             truck.packages.remove(closest_package)
+
+          # 1. set truck location back to hub once empty
+          # 2.
 
 
 
