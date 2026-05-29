@@ -21,6 +21,11 @@ class Package:
         self.departure_time = None
         self.time_delivered = None
 
+# Adds packages to trucks and update deivery status
+def add_package_to_truck(truck, package, status_code):
+    truck.pakages.append(package)
+    package.departure_time = truck.departure_time
+    package.delivery_status = DeliveryStatus(status_code)
 
 
 

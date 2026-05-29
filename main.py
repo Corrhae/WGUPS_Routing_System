@@ -2,7 +2,7 @@ import csv
 import datetime
 
 from Driver import Driver
-from Package import Package
+from Package import Package, add_package_to_truck
 from Package import DeliveryStatus
 from Package import DeliveryStatus
 from Trucks import Truck
@@ -127,23 +127,20 @@ def get_distance(point_a,point_b):
 # assigns packages to trucks
 def load_packages(hash_table, truck1, truck2, truck3):
 # create a loop that goes through the truck list and takes that as an attribute
-    for package_id in range(len(hash_table)):
+    for package_id in range(1,len(hash_table) + 1):
         package = hash_table.get(package_id)
 
         # if the truck has a truck requirement it is loaded to that truck
         if package_id in packages_with_truck_restriction:
-            truck_2.packages.append(package)
-            package.status = DeliveryStatus(1)
+            add_package_to_truck(truck2, package, 2)
 
         # Checks if the packages need to be grouped
         elif package_id in grouped_packages:
-            truck_1.packages.append(package)
-            package.status = DeliveryStatus(1)
+            add_package_to_truck(truck1, package, 2)
 
         # Checks for package delay
         elif package_id in delayed_packages:
-            truck_2.packages.append(package)
-            package.status = DeliveryStatus(4)
+            add_package_to_truck(truck3, package, 4)
 
     # loads the remaining packages
     for  package_id in range(len(hash_table)):
@@ -155,33 +152,67 @@ def load_packages(hash_table, truck1, truck2, truck3):
 
         if "10:30" in package.deadline:
             if truck_1.packages.length < truck_1.capacity:
-                truck_1.packages.append(package)
+                add_package_to_truck(truck1, package, 2)
 
             elif truck_2.packages.length < truck_2.capacity:
-                truck_2.packages.append(package)
+                add_package_to_truck(truck2, package, 2)
 
             elif truck_3.packages.length < truck_3.capacity:
-                truck_3.packages.append(package)
+                add_package_to_truck(truck3, package, 1)
         else:
 
             if truck_1.packages.length < truck_1.capacity:
-                truck_1.packages.append(package)
+                add_package_to_truck(truck1, package, 2)
 
             elif truck_2.packages.length < truck_2.capacity:
-                truck_2.packages.append(package)
+                add_package_to_truck(truck2, package, 2)
 
             elif truck_3.packages.length < truck_3.capacity:
-                 truck_3.packages.append(package)
+                 add_package_to_truck(truck3, package, 1)
 
 
 
 ##### Delivery (Nearest Neighbor) Algorithm #######
 
 def route_and_deliver(hash_table, truck):
-    shortest_distance = float("inf")
+  # Continues to loop until the truck is empty
+    while len(truck.packages) > 0:
+        #Set the shortest distance to infinity so any distance is smaller
+        shortest_distance = float("inf")
+        closest_package = None
 
-    for package in truck:
-        distance = truck.location
+
+        # Loops through all of the packages to find the shortest distance
+        for package in truck:
+            distance = get_distance(truck.location, package.address)
+            if distance < shortest_distance:
+                shortest_distance = distance
+                closest_package = package
+
+
+        # The truck drives to the closest delivery location
+            truck.location = closest_package.address
+            truck.mileage += shortest_distance
+
+        # Calculate the elapsed time of the trip
+            elapsed_time = (shortest_distance / truck.speed) * 60
+
+        #Update the Trucks clock and package delivery status
+            truck.current_time += timedelta(minutes=elapsed_time)
+            closest_package.delivery_time = truck.current_time
+            package.delivery_status = DeliveryStatus.DELIVERED
+
+            #Remove/Deliver the package
+            truck.packages.remove(closest_package)
+
+
+
+
+
+
+
+
+
 
 
 
