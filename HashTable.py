@@ -4,48 +4,50 @@ class HashTable:
         self.table = [[] for _ in range(self.size)]
 
     # hash function
-    def hash(self, key):
+    def get_hash(self, key):
         return  int (key) % self.size
 
     # function to insert
     def insert(self, key, value):
-        bucket_index = self.hash(key)
+        key = int(key)
+        bucket_index = self.get_hash(key) % len(self.table)
 
         bucket = self.table[bucket_index]
         key_exist = False
 
-        str_key = str(key)
-
         for item in self.table[bucket_index]:
-            if item[0] == str_key:
+            if item[0] == key:
                 item[1] = value
                 key_exist = True
                 break
 
         if not key_exist:
-            self.table[bucket_index].append([str_key, value])
+            self.table[bucket_index].append([key, value])
             return
 
 
     #function to get/lookup
     def get(self, key):
-        bucket_index = self.hash(key)
+        key = int(key)
 
-        key_exist = False
-        str_key = str(key)
+        bucket_index = self.get_hash(key) % len(self.table)
+        bucket = self.table[bucket_index]
+        ##print("Inserting key:", type(key), key)
+
+        ##print("Looking up key:", type(key), key)
+
 
         for item in self.table[bucket_index]:
-            if item[0] == str_key:
+            if item[0] == key:
                 return item[1]
 
         print("Key not found")
-
         return None
 
 
     #function to delete
     def remove(self, key):
-        bucket_index = self.hash(key)
+        bucket_index = self.get_hash(key)
 
         str_key = str(key)
 
