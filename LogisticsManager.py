@@ -167,6 +167,7 @@ class LogisticsManager:
                 # Set truck 3 departure time
                 departure = max([time_of_address_change, first_driver_return])
                 truck_3.departure_time = departure
+                truck_3.current_time = departure
 
                 # Change address to package 9
                 package_9 = self.package_table.get(9)
