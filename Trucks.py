@@ -11,6 +11,7 @@ class Truck:
         self.speed = 18
         self.mileage = 0.0
         self.departure_time = departure_time
+        self.completion_time = None
         self.current_time = departure_time
         self.location = "4001 South 700 East"
 

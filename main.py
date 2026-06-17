@@ -1,3 +1,6 @@
+# StudentID# 011697724
+
+
 from datetime import timedelta
 from datetime import datetime
 from HashTable import HashTable
@@ -10,12 +13,12 @@ class UserInterface:
 
     def start_menu(self):
         print("<========================================")
-        print("Welcome to WGUPS Routing")
+        print("       Welcome to WGUPS Routing...")
         print("<========================================")
 
         # Print menu options
         print("Please select an option:")
-        print("1.Full Report ")
+        print("1. Full Report ")
         print("2. Single Report ")
         print("3. View Truck Mileage")
         print("4. Exit")
@@ -56,10 +59,27 @@ class UserInterface:
             except ValueError:
                 print("Invalid input. Please try again.")
 
+        stripped_time = parsed_time.strftime("%H:%M")
+        period = "AM" if 12 > parsed_time.hour >= 8 else "PM"
 
-        print("<========================")
-        print("Printing Package Status of package ID :{package_requested} at {query_time}...:")
-        print("<=========================")
+        print("=" * 195)
+        print(f"                                                                         Status of package ID:{package_id} at {stripped_time} {period}")
+        print("=" * 195)
+
+
+        print(
+            f"{'ID':<6} | "
+            f"{'Street Address':<47} | "
+            f"{'City':<33} | "
+            f"{'ST':<10} | "
+            f"{'Zip':<10} | "
+            f"{'Truck#':<13} |"
+            f"{'Status':<19} | "
+            f"{'Deadline':<18} | " 
+            f"{'Delivery Time'} ")
+
+        print("-" * 195)
+
         self.print_package_status(package, query_time)
         print()
 
@@ -73,28 +93,33 @@ class UserInterface:
              print("invalid input. Please enter time in format HH:MM")
              return
 
+        stripped_time = parsed_time.strftime("%H:%M")
+        period = "AM" if 12 > parsed_time.hour >= 8 else "PM"
+
+        print("=" * 195)
+        print(f"                                                FLEET SNAPSHOT REPORT AT {stripped_time} {period} ")
+        print("=" * 195)
+
+
         print(
-            f"\n====================================================== FLEET SNAPSHOT REPORT AT {query_time} ======================================================")
-        print(
-            f"{'ID':<7} | "
-            f"{'Status':<15} | "
-            f"{'Time':<11} | "
-            f"{'Street Address':<38} | "
-            f"{'City':<16} | "
-            f"{'ST':<3} | "
-            f"{'Zip':<5} | "
-            f"{'Weight':<6} | "
-            f"{'Deadline':<8}"
-        )
-        print("-" * 52)
+            f"{'ID':<6} | "
+            f"{'Street Address':<47} | "
+            f"{'City':<33} | "
+            f"{'ST':<10} | "
+            f"{'Zip':<10} | "
+            f"{'Truck#':<13} |"
+            f"{'Status':<19} | "
+            f"{'Deadline':<18} | " 
+            f"{'Delivery Time'} ")
+
+        print("-" * 195)
 
         for package_id in range(1,41):
             package = self.simulation.package_table.get(package_id)
             if package:
                 self.print_package_status(package, query_time)
 
-        print(
-            "===============================================================================================================================================\n")
+        print("=" * 195)
 
 
     def print_package_status(self, package, query_time):
@@ -106,7 +131,11 @@ class UserInterface:
             address = package.address
             zip = package.zip_code
 
-        if query_time < package.departure_time:
+        if "Delayed" in package.special_notes and query_time < timedelta(hours=9, minutes=5):
+            status = "Delayed"
+            delivery_info = "Awaiting Arrival"
+
+        elif query_time < package.departure_time:
             status = "At the Hub"
             delivery_info = "No info yet"
         elif package.departure_time <= query_time < package.delivery_time:
@@ -115,41 +144,57 @@ class UserInterface:
         elif query_time >= package.delivery_time:
             status = "Delivered"
             delivery_info = package.delivery_time
-        else:
-            status = "Delayed"
-            delivery_info = "No info yet"
+
 
         print(
-            f"ID: {package.package_id:<3} | "
-            f"Status: {status:<12} | "
-            f"Time: {str(delivery_info):<11} | "
+            f"ID: {package.package_id:<2} | "
             f"Address: {address:<38} | "
-            f"City: {package.city:<16} | "
+            f"City: {package.city:<27} | "
             f"State: {package.state:<3} | "
             f"Zip: {zip:<5} | "
-            f"Weight: {package.package_weight:<2} lbs | "
-            f"Deadline: {package.delivery_deadline:<8}")
+            f"Truck: {package.truck_id:<7} | "
+            f"Status: {status:<11} | "
+            f"Deadline: {package.delivery_deadline:<10} | "
+            f"Delivery Time: {str(delivery_info)}")
 
 
     def show_mileage(self):
+
         # prompt user for time
         time_input = input("Enter time in 24-hour format (HH:MM, e.g., 09:30 or 14:15): ").strip()
         try:
             parsed_time = datetime.strptime(time_input, "%H:%M")
-            query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
+
+            if parsed_time.hour < 7:
+                query_time = timedelta(hours=parsed_time.hour + 12, minutes=parsed_time.minute)
+            else:
+                query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
         except ValueError:
             print("Invalid time format. Returning 0.0 mileage.")
             return 0.0
 
+
         total_mileage = 0.0
 
-        for truck in self.simulation.trucks:
+        stripped_time = parsed_time.strftime("%H:%M")
+        period = "AM" if 12 > parsed_time.hour >= 8 else "PM"
 
+        print(f"=====================================================================")
+        print("                      FLEET MILEAGE REPORT")
+        print(f"=====================================================================")
+        print(f"SNAPSHOT TIME: {stripped_time} {period}")
+        print("~" * 69)
+        for truck in self.simulation.fleet:
+
+            # If the truck hasn't left yet
             if query_time < truck.departure_time:
+                print(f" 🚚 Truck {truck.truck_id} | Status: 🏠 AT HUB       | Mileage: 0.00 miles")
                 continue
 
-            elif query_time >= truck.departure_time:
+            # If the query time is after the route completion time
+            elif query_time >= truck.completion_time:
                  total_mileage += truck.mileage
+                 print(f" 🚚 Truck {truck.truck_id} | Status: ✅ COMPLETED    | Mileage: {truck.mileage:.2f} miles")
             else:
                 # Calculate the total time driven
                 time_spent_driving = query_time - truck.departure_time
@@ -160,8 +205,12 @@ class UserInterface:
                 # Calculate the miles driven
                 estimated_mileage = 18 * hours_driven
                 total_mileage += estimated_mileage
+                print(f" 🚚 Truck {truck.truck_id} | Status: 💨 IN TRANSIT    | Mileage: {estimated_mileage:.2f} miles")
 
-        print(f"Total combined fleet mileage at {time_input}: {total_mileage:.2f} miles\n")
+        print("~" * 69)
+
+        print(f"📊 Total combined fleet mileage at {stripped_time} {period}: {total_mileage:.2f} miles\n")
+
         return total_mileage
 
 

@@ -16,10 +16,11 @@ class Package:
         self.delivery_deadline = delivery_deadline
         self.package_weight = package_weight
         self.special_notes = special_notes
-        self.required_truck = None
+        self.truck_id= None
         self.delivery_status = DeliveryStatus.AT_THE_HUB
         self.departure_time = None
         self.delivery_time = None
+
 
 # Adds packages to trucks and update delivery status
     def add_package_to_truck(truck, package, status_code):
@@ -32,6 +33,7 @@ class Package:
         truck.packages.append(package)
         package.departure_time = truck.departure_time
         package.delivery_status = status_map[status_code]
+        package.truck_id = truck.truck_id
 
 
 

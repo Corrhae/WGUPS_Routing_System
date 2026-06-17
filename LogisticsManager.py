@@ -137,6 +137,7 @@ class LogisticsManager:
         truck.mileage += distance_to_hub
         truck.location = hub_address
         truck.current_time += timedelta(minutes=time_to_hub)
+        truck.completion_time = truck.current_time
 
     def run_delivery(self):
         truck_1 = self.fleet[0]
