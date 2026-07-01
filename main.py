@@ -1,27 +1,30 @@
-# StudentID# 011697724
-
-
+# Student ID# 011697724
 from datetime import timedelta
 from datetime import datetime
 from HashTable import HashTable
 from LogisticsManager import LogisticsManager
 from DataReader import DataReader
 
-class UserInterface:
+class UserInterface: # Time Complexity: O(n)
     def __init__(self, simulation):
         self.simulation = simulation
 
     def start_menu(self):
-        print("<========================================")
-        print("       Welcome to WGUPS Routing...")
-        print("<========================================")
+        print("=" * 60)
+        print("         WESTERN GOVERNORS UNIVERSITY")
+        print("        PACKAGE ROUTING & DELIVERY SYSTEM")
+        print("=" * 60)
 
         # Print menu options
-        print("Please select an option:")
-        print("1. Full Report ")
-        print("2. Single Report ")
-        print("3. View Truck Mileage")
-        print("4. Exit")
+        print()
+        print("+------------------------------------------+")
+        print("|               MAIN MENU                  |")
+        print("+------------------------------------------+")
+        print("| 1. View Full Package Report              |")
+        print("| 2. Search Package by Time                |")
+        print("| 3. View Fleet Mileage                    |")
+        print("| 4. Exit                                  |")
+        print("+------------------------------------------+")
 
         while True:
             # Get user input
@@ -45,16 +48,19 @@ class UserInterface:
 
 
 
-    def print_status(self):
+    def print_status(self): # <--- Time Complexity: O(1)
+
         while True:
             try:
                 package_id = input("Enter package ID (1-40): ").strip()
                 input_time  =input("Enter time (HH:MM): ")
-
                 package = self.simulation.package_table.get(package_id)
 
                 parsed_time = datetime.strptime(input_time, "%H:%M")
-                query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
+                if parsed_time.hour < 7:
+                    query_time = timedelta(hours=parsed_time.hour + 12, minutes=parsed_time.minute)
+                else:
+                    query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
                 break;
             except ValueError:
                 print("Invalid input. Please try again.")
@@ -83,12 +89,19 @@ class UserInterface:
         self.print_package_status(package, query_time)
         print()
 
-    def generate_full_report(self):
+    def generate_full_report(self): # <--- Time complexity: O(n)
 
         time_input = input("Enter time (HH:MM, eg.. 09:30): ").strip()
         try:
             parsed_time = datetime.strptime(time_input, "%H:%M")
-            query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
+
+            if parsed_time.hour < 7:
+                query_time = timedelta(hours=parsed_time.hour + 12, minutes=parsed_time.minute)
+            else:
+                query_time = timedelta(hours=parsed_time.hour, minutes=parsed_time.minute)
+
+
+
         except ValueError:
              print("invalid input. Please enter time in format HH:MM")
              return
@@ -102,15 +115,15 @@ class UserInterface:
 
 
         print(
-            f"{'ID':<6} | "
-            f"{'Street Address':<47} | "
-            f"{'City':<33} | "
-            f"{'ST':<10} | "
-            f"{'Zip':<10} | "
-            f"{'Truck#':<13} |"
-            f"{'Status':<19} | "
-            f"{'Deadline':<18} | " 
-            f"{'Delivery Time'} ")
+            f"{'ID':<3} | "
+            f"{'Street Address':<35} | "
+            f"{'City':<21} | "
+            f"{'ST':<3} | "
+            f"{'Zip':<7} | "
+            f"{'Truck#':<6} |"
+            f"{'Status':<13} | "
+            f"{'Deadline':<10} | " 
+            f"{'Delivery Time':<9} ")
 
         print("-" * 195)
 
@@ -131,34 +144,36 @@ class UserInterface:
             address = package.address
             zip = package.zip_code
 
-        if "Delayed" in package.special_notes and query_time < timedelta(hours=9, minutes=5):
-            status = "Delayed"
-            delivery_info = "Awaiting Arrival"
-
-        elif query_time < package.departure_time:
-            status = "At the Hub"
-            delivery_info = "No info yet"
-        elif package.departure_time <= query_time < package.delivery_time:
-            status = "En Route"
-            delivery_info = "No info yet"
-        elif query_time >= package.delivery_time:
+        # Check if package is delivered already
+        if query_time >= package.delivery_time:
             status = "Delivered"
             delivery_info = package.delivery_time
 
+        elif package.departure_time <= query_time < package.delivery_time:
+            status = "En Route"
+            delivery_info = "No info yet"
+
+        elif "Delayed" in package.special_notes and query_time < timedelta(hours=9, minutes=5):
+            status = "Delayed"
+            delivery_info = "Awaiting Arrival"
+
+        else:
+            status = "At the Hub"
+            delivery_info = "No info yet"
 
         print(
-            f"ID: {package.package_id:<2} | "
-            f"Address: {address:<38} | "
-            f"City: {package.city:<27} | "
-            f"State: {package.state:<3} | "
-            f"Zip: {zip:<5} | "
-            f"Truck: {package.truck_id:<7} | "
-            f"Status: {status:<11} | "
-            f"Deadline: {package.delivery_deadline:<10} | "
-            f"Delivery Time: {str(delivery_info)}")
+            f" {package.package_id:<2} | "
+            f"{address:<35} | "
+            f" {package.city:<20} | "
+            f"{package.state:<3} | "
+            f" {zip:<6} | "
+            f"{package.truck_id:<6} | "
+            f"{status:<12} | "
+            f"{package.delivery_deadline:<10} | "
+            f" {str(delivery_info)}")
 
 
-    def show_mileage(self):
+    def show_mileage(self): # Time Complexity: O(1)
 
         # prompt user for time
         time_input = input("Enter time in 24-hour format (HH:MM, e.g., 09:30 or 14:15): ").strip()
@@ -217,18 +232,6 @@ class UserInterface:
 
 
             #
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
